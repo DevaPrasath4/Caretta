@@ -70,12 +70,6 @@ JWT_SECRET=your_jwt_secret_key
 CLIENT_URL=http://localhost:3000
 ```
 
-Run the application:
-
-```bash
-npm run dev
-```
-
 ## Future Enhancements
 
 * CRM integration
@@ -84,10 +78,4 @@ npm run dev
 * Multi-agent coaching system
 * Industry-specific knowledge bases
 
-## Author
 
-Deva Prasath N N
-
-## License
-
-MIT License
