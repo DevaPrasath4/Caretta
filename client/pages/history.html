@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Caretta – Call History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/history.css" />
+  <style>
+    :root {
+      --brand:#2dd4bf;--brand-dark:#14b8a6;--brand-light:rgba(45,212,191,.08);--brand-dim:rgba(45,212,191,.15);
+      --success:#2dd4bf;--success-bg:rgba(45,212,191,.1);--warn:#fbbf24;--warn-bg:rgba(251,191,36,.1);
+      --danger:#f87171;--danger-bg:rgba(248,113,113,.1);--bg:#0a0a0f;--bg-2:#111118;
+      --surface:#16161f;--surface-2:#1e1e2a;--border:rgba(255,255,255,.07);--border-md:rgba(255,255,255,.12);
+      --text:#f1f5f9;--text-2:#cbd5e1;--text-3:#64748b;--text-4:#334155;
+      --radius-sm:6px;--radius-md:10px;--radius-lg:14px;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.4);--shadow-md:0 4px 12px rgba(0,0,0,.5);--shadow-lg:0 10px 30px rgba(0,0,0,.6);
+      --glow:0 0 20px rgba(45,212,191,.15);
+    }
+    html,body{background:#0a0a0f!important;color:#f1f5f9!important;}
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-left">
+      <span class="brand-icon">C</span>
+      <span class="brand-name">Caretta</span>
+      <span class="brand-tag">W26</span>
+    </div>
+    <div class="nav-right">
+      <a href="dashboard.html" class="btn-ghost btn-sm">← Dashboard</a>
+      <div class="avatar">SR</div>
+    </div>
+  </nav>
+
+  <main class="history-main">
+    <div class="history-header">
+      <div>
+        <h2>Call History</h2>
+        <p class="sub">Review past calls, transcripts, and AI suggestions.</p>
+      </div>
+      <input type="text" class="search-input" id="searchInput" placeholder="Search by prospect or date..." />
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val" id="statTotal">12</div>
+        <div class="stat-lbl">Total calls</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statAvgQ">4.2</div>
+        <div class="stat-lbl">Avg questions / call</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statAvgConf">91%</div>
+        <div class="stat-lbl">Avg AI confidence</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="statAvgDur">18 min</div>
+        <div class="stat-lbl">Avg call duration</div>
+      </div>
+    </div>
+
+    <div class="calls-table-wrapper">
+      <table class="calls-table">
+        <thead>
+          <tr>
+            <th>Date &amp; Time</th>
+            <th>Prospect</th>
+            <th>Duration</th>
+            <th>Questions</th>
+            <th>Confidence</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="callsBody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="../js/history.js"></script>
+</body>
+</html>

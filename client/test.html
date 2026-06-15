@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caretta API Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f3f4f6;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h1 { color: #1f2937; margin-bottom: 20px; }
+    .section {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .section:last-child { border-bottom: none; }
+    label { display: block; font-weight: 600; margin-top: 12px; margin-bottom: 4px; color: #374151; }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      margin-bottom: 12px;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    button {
+      background: #1f2937;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    button:hover { background: #111827; }
+    .success { background: #10b981; }
+    .success:hover { background: #059669; }
+    .error { background: #ef4444; }
+    .error:hover { background: #dc2626; }
+    .response {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+    }
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .status.ok { background: #ecfdf5; color: #10b981; }
+    .status.error { background: #fef2f2; color: #ef4444; }
+    .row { display: flex; gap: 12px; }
+    .row > * { flex: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Caretta W26 - API Test Panel</h1>
+    
+    <!-- Health Check -->
+    <div class="section">
+      <h2>1. Health Check</h2>
+      <button class="success" onclick="testHealth()">Test Health Endpoint</button>
+      <div id="healthResponse"></div>
+    </div>
+
+    <!-- Register -->
+    <div class="section">
+      <h2>2. Register New Account</h2>
+      <label>Full Name:</label>
+      <input type="text" id="regName" value="Test User" placeholder="Your name">
+      
+      <label>Email:</label>
+      <input type="email" id="regEmail" value="test@example.com" placeholder="your@email.com">
+      
+      <label>Password:</label>
+      <input type="password" id="regPassword" value="password123" placeholder="••••••••">
+      
+      <label>Company (Optional):</label>
+      <input type="text" id="regCompany" value="Test Corp" placeholder="Company name">
+      
+      <button class="success" onclick="testRegister()">Register</button>
+      <div id="registerResponse"></div>
+    </div>
+
+    <!-- Login -->
+    <div class="section">
+      <h2>3. Login</h2>
+      <label>Email:</label>
+      <input type="email" id="loginEmail" value="test@example.com" placeholder="your@email.com">
+      
+      <label>Password:</label>
+      <input type="password" id="loginPassword" value="password123" placeholder="••••••••">
+      
+      <button class="success" onclick="testLogin()">Login</button>
+      <div id="loginResponse"></div>
+      <div id="tokenStatus"></div>
+    </div>
+
+    <!-- AI Suggestion -->
+    <div class="section">
+      <h2>4. Test AI Suggestion</h2>
+      <p style="color: #6b7280; font-size: 14px; margin-bottom: 12px;">Must login first to get token</p>
+      
+      <label>Question:</label>
+      <textarea id="questionText" placeholder="Ask a technical question...">We need on-premise deployment. Can you support that?</textarea>
+      
+      <label>Session ID:</label>
+      <input type="text" id="sessionId" value="test-session-001" placeholder="session-id">
+      
+      <button class="success" onclick="testAISuggestion()">Get AI Suggestion</button>
+      <div id="aiResponse"></div>
+      <button id="playAudioBtn" style="display: none; margin-top: 10px;">🔊 Play Audio</button>
+    </div>
+
+    <!-- Quick Tests -->
+    <div class="section">
+      <h2>5. Quick Tests</h2>
+      <p style="color: #6b7280; font-size: 14px; margin-bottom: 12px;">Pre-configured test scenarios</p>
+      
+      <div class="row">
+        <button class="success" onclick="quickTest('Hi there!')">Test: Greeting</button>
+        <button class="success" onclick="quickTest('What about encryption?')">Test: Technical</button>
+        <button class="success" onclick="quickTest('Do you have pricing info?')">Test: Pricing</button>
+      </div>
+      <div id="quickTestResponse"></div>
+    </div>
+
+    <!-- Status -->
+    <div class="section">
+      <h2>📊 Status</h2>
+      <div id="status" style="font-size: 14px; color: #6b7280;">
+        <p>🔴 No API calls made yet</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:5000';
+    let token = localStorage.getItem('caretta_test_token');
+    let userId = localStorage.getItem('caretta_test_userId');
+
+    function updateStatus(message, isError = false) {
+      const statusEl = document.getElementById('status');
+      statusEl.innerHTML = `<p>${isError ? '🔴' : '🟢'} ${message}</p>`;
+    }
+
+    function displayResponse(elementId, data, isError = false) {
+      const el = document.getElementById(elementId);
+      el.className = 'response';
+      el.innerHTML = JSON.stringify(data, null, 2);
+      const status = document.createElement('div');
+      status.className = `status ${isError ? 'error' : 'ok'}`;
+      status.textContent = isError ? '❌ Error' : '✅ Success';
+      el.appendChild(status);
+    }
+
+    async function testHealth() {
+      try {
+        updateStatus('Testing health endpoint...');
+        const res = await fetch(`${API_URL}/api/health`);
+        const data = await res.json();
+        displayResponse('healthResponse', data, !res.ok);
+        updateStatus(res.ok ? '✅ Server is healthy' : '❌ Server error');
+      } catch (err) {
+        displayResponse('healthResponse', { error: err.message }, true);
+        updateStatus('❌ Connection failed: ' + err.message, true);
+      }
+    }
+
+    async function testRegister() {
+      try {
+        updateStatus('Registering user...');
+        const res = await fetch(`${API_URL}/api/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('regName').value,
+            email: document.getElementById('regEmail').value,
+            password: document.getElementById('regPassword').value,
+            company: document.getElementById('regCompany').value
+          })
+        });
+        const data = await res.json();
+        displayResponse('registerResponse', data, !res.ok);
+        
+        if (res.ok) {
+          token = data.token;
+          userId = data.user.id;
+          localStorage.setItem('caretta_test_token', token);
+          localStorage.setItem('caretta_test_userId', userId);
+          updateStatus('✅ Registration successful - Token saved');
+        } else {
+          updateStatus('❌ Registration failed: ' + data.error, true);
+        }
+      } catch (err) {
+        displayResponse('registerResponse', { error: err.message }, true);
+        updateStatus('❌ Registration error: ' + err.message, true);
+      }
+    }
+
+    async function testLogin() {
+      try {
+        updateStatus('Logging in...');
+        const res = await fetch(`${API_URL}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('loginEmail').value,
+            password: document.getElementById('loginPassword').value
+          })
+        });
+        const data = await res.json();
+        displayResponse('loginResponse', data, !res.ok);
+        
+        if (res.ok) {
+          token = data.token;
+          userId = data.user.id;
+          localStorage.setItem('caretta_test_token', token);
+          localStorage.setItem('caretta_test_userId', userId);
+          document.getElementById('tokenStatus').innerHTML = '<div class="status ok">✅ Token saved and ready</div>';
+          updateStatus('✅ Login successful - Token saved');
+        } else {
+          updateStatus('❌ Login failed: ' + data.error, true);
+        }
+      } catch (err) {
+        displayResponse('loginResponse', { error: err.message }, true);
+        updateStatus('❌ Login error: ' + err.message, true);
+      }
+    }
+
+    async function testAISuggestion() {
+      try {
+        if (!token) {
+          updateStatus('❌ No token found - Please login first', true);
+          return;
+        }
+        
+        updateStatus('Getting AI suggestion...');
+        const res = await fetch(`${API_URL}/api/ai/suggest`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            sessionId: document.getElementById('sessionId').value,
+            prospectText: document.getElementById('questionText').value
+          })
+        });
+        
+        const data = await res.json();
+        
+        // Hide audio button by default
+        document.getElementById('playAudioBtn').style.display = 'none';
+        
+        // If has audio, show play button
+        if (data.audioBase64) {
+          const playBtn = document.getElementById('playAudioBtn');
+          playBtn.style.display = 'inline-block';
+          playBtn.onclick = () => {
+            const audio = new Audio(`data:audio/mpeg;base64,${data.audioBase64}`);
+            audio.play();
+          };
+        }
+        
+        // Display response (without full audio to avoid huge output)
+        const displayData = { ...data };
+        if (displayData.audioBase64) {
+          displayData.audioBase64 = `[Audio data - ${displayData.audioBase64.length} chars]`;
+        }
+        
+        displayResponse('aiResponse', displayData, !res.ok);
+        updateStatus(res.ok ? '✅ AI suggestion received' : '❌ AI request failed', !res.ok);
+      } catch (err) {
+        displayResponse('aiResponse', { error: err.message }, true);
+        updateStatus('❌ AI error: ' + err.message, true);
+      }
+    }
+
+    async function quickTest(question) {
+      if (!token) {
+        updateStatus('❌ No token - Please login first', true);
+        return;
+      }
+      
+      document.getElementById('questionText').value = question;
+      await testAISuggestion();
+    }
+
+    // Load token on page load
+    window.onload = () => {
+      if (token) {
+        document.getElementById('tokenStatus').innerHTML = '<div class="status ok">✅ Token found: ' + token.substring(0, 20) + '...</div>';
+      }
+    };
+  </script>
+</body>
+</html>

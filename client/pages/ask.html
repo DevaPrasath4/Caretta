@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Caretta – Ask a Question</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0f;
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(45,212,191,.07) 0%, transparent 60%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #f1f5f9;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      background: #16161f;
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.07);
+      box-shadow: 0 10px 40px rgba(0,0,0,.6);
+    }
+    .brand { text-align: center; margin-bottom: 30px; }
+    .brand-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px; height: 50px;
+      background: #2dd4bf;
+      border-radius: 12px;
+      font-size: 24px; font-weight: 800;
+      color: #0a0a0f;
+      box-shadow: 0 0 20px rgba(45,212,191,.3);
+    }
+    .brand-name {
+      display: block; font-size: 24px; font-weight: 700;
+      color: #f1f5f9; margin-top: 10px;
+    }
+    h1 { color: #f1f5f9; font-size: 20px; margin-bottom: 10px; text-align: center; }
+    .subtitle { color: #64748b; text-align: center; margin-bottom: 30px; font-size: 14px; }
+    .session-input { display: flex; gap: 10px; margin-bottom: 20px; }
+    .session-input input {
+      flex: 1; padding: 14px 16px; border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.1);
+      background: #1e1e2a; color: #f1f5f9; font-size: 16px; outline: none;
+      font-family: 'Inter', sans-serif;
+    }
+    .session-input input::placeholder { color: #334155; }
+    .session-input input:focus { border-color: #2dd4bf; box-shadow: 0 0 0 3px rgba(45,212,191,.1); }
+    .session-input button {
+      padding: 14px 24px; border-radius: 10px; border: none;
+      background: #2dd4bf; color: #0a0a0f;
+      font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      font-family: 'Inter', sans-serif; box-shadow: 0 0 16px rgba(45,212,191,.2);
+    }
+    .session-input button:hover { background: #14b8a6; }
+    .divider {
+      display: flex; align-items: center; margin: 25px 0;
+      color: #334155; font-size: 12px;
+    }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.07); }
+    .divider span { padding: 0 15px; }
+    .question-form { display: none; }
+    .question-form.active { display: block; }
+    .question-form textarea {
+      width: 100%; min-height: 120px; padding: 16px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.1); background: #1e1e2a;
+      color: #f1f5f9; font-size: 16px; font-family: 'Inter', sans-serif;
+      resize: vertical; outline: none;
+    }
+    .question-form textarea::placeholder { color: #334155; }
+    .question-form textarea:focus { border-color: #2dd4bf; box-shadow: 0 0 0 3px rgba(45,212,191,.1); }
+    .send-btn {
+      width: 100%; margin-top: 15px; padding: 16px; border-radius: 12px; border: none;
+      background: #2dd4bf; color: #0a0a0f;
+      font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.2s;
+      font-family: 'Inter', sans-serif; box-shadow: 0 0 20px rgba(45,212,191,.2);
+    }
+    .send-btn:hover { background: #14b8a6; transform: scale(1.01); }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .status { text-align: center; padding: 12px; border-radius: 8px; margin-top: 15px; font-size: 14px; }
+    .status.connecting { background: rgba(251,191,36,.1); color: #fbbf24; }
+    .status.connected   { background: rgba(45,212,191,.1); color: #2dd4bf; }
+    .status.error       { background: rgba(248,113,113,.1); color: #f87171; }
+    .status.sent        { background: rgba(45,212,191,.1); color: #2dd4bf; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="brand">
+      <span class="brand-icon">C</span>
+      <span class="brand-name">Caretta</span>
+    </div>
+    
+    <!-- Session Join Form -->
+    <div id="joinForm">
+      <h1>Ask the Salesperson</h1>
+      <p class="subtitle">Enter the session code provided by the salesperson</p>
+      
+      <div class="session-input">
+        <input type="text" id="sessionCode" placeholder="e.g., session-123456" />
+        <button onclick="joinSession()">Join</button>
+      </div>
+      
+      <div id="joinStatus" class="status hidden"></div>
+    </div>
+    
+    <!-- Question Form -->
+    <div id="questionForm" class="question-form">
+      <h1>Send Your Question</h1>
+      <p class="subtitle">Type your question below. The salesperson (or AI) will respond.</p>
+      
+      <textarea id="questionText" placeholder="Type your question here..."></textarea>
+      <button class="send-btn" onclick="sendQuestion()">Send Question</button>
+      
+      <div id="questionStatus" class="status hidden"></div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    let socket = null;
+    let currentSessionId = null;
+
+    function joinSession() {
+      const sessionCode = document.getElementById('sessionCode').value.trim();
+      if (!sessionCode) {
+        showStatus('joinStatus', 'Please enter a session code', 'error');
+        return;
+      }
+
+      currentSessionId = sessionCode;
+      showStatus('joinStatus', 'Connecting...', 'connecting');
+
+      // Connect to socket server
+      const SERVER_URL = window.CARETTA_SERVER || 'http://localhost:5000';
+      socket = io(SERVER_URL);
+
+      socket.on('connect', () => {
+        console.log('Connected:', socket.id);
+        socket.emit('prospect:join', { sessionId: currentSessionId });
+      });
+
+      socket.on('prospect:joined', (data) => {
+        console.log('Joined session:', data.sessionId);
+        showStatus('joinStatus', 'Connected! You can now ask questions.', 'connected');
+        
+        document.getElementById('joinForm').classList.add('hidden');
+        document.getElementById('questionForm').classList.add('active');
+      });
+
+      socket.on('error', (data) => {
+        showStatus('joinStatus', data.message || 'Failed to join session', 'error');
+      });
+
+      socket.on('host:response', (data) => {
+        // Show response from host
+        showResponse(data.text, data.isAI);
+      });
+    }
+
+    function sendQuestion() {
+      const text = document.getElementById('questionText').value.trim();
+      if (!text) {
+        showStatus('questionStatus', 'Please enter a question', 'error');
+        return;
+      }
+
+      socket.emit('guest:question', {
+        sessionId: currentSessionId,
+        text: text
+      });
+
+      showStatus('questionStatus', 'Question sent! Waiting for response...', 'sent');
+      document.getElementById('questionText').value = '';
+    }
+
+    function showResponse(text, isAI) {
+      const status = document.getElementById('questionStatus');
+      status.className = 'status ' + (isAI ? 'connected' : 'sent');
+      status.innerHTML = isAI 
+        ? `<strong>🤖 AI Response:</strong> ${text}`
+        : `<strong>💬 Salesperson Response:</strong> ${text}`;
+      status.classList.remove('hidden');
+    }
+
+    function showStatus(elementId, message, type) {
+      const el = document.getElementById(elementId);
+      el.textContent = message;
+      el.className = 'status ' + type;
+      el.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

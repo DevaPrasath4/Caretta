@@ -1,0 +1,30 @@
+/* ── login.css (dark theme) ── */
+
+.auth-body {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg);
+  background-image: radial-gradient(ellipse at 60% 20%, rgba(45,212,191,.06) 0%, transparent 60%);
+  padding: 20px;
+}
+
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 40px;
+  width: 100%; max-width: 420px;
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-card .brand { margin-bottom: 28px; justify-content: center; }
+.auth-card h1    { font-size: 1.6rem; margin-bottom: 8px; text-align: center; }
+.auth-card p.sub { text-align: center; margin-bottom: 24px; }
+.auth-card form  { margin-top: 28px; }
+
+.demo-note {
+  text-align: center; font-size: 12px; color: var(--text-3);
+  margin-top: 20px; font-weight: 500;
+}
+.demo-note a { color: var(--brand); text-decoration: none; font-weight: 600; transition: color .2s; }
+.demo-note a:hover { color: var(--brand-dark); text-decoration: underline; }
